@@ -1,6 +1,7 @@
 package org.springexmaples.student_management_system.contoller;
 
 
+import org.springexmaples.student_management_system.model.Course;
 import org.springexmaples.student_management_system.model.Student;
 import org.springexmaples.student_management_system.payload.StudentDTO;
 import org.springexmaples.student_management_system.payload.StudentResponseDTO;
@@ -9,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api")
@@ -54,5 +57,11 @@ public class StudentController {
         StudentDTO deleteStudent = studentService.deleteStudent(studentId);
         return  new ResponseEntity<>(deleteStudent,HttpStatus.OK);
     }
+
+//       @GetMapping("/student/{studentId}/course")
+//    public ResponseEntity<Course> getCourse(@PathVariable Long studentId){
+//        Course course = studentService.getCourse(studentId);
+//        return new ResponseEntity<>(course,HttpStatus.OK);
+//    }
 
 }

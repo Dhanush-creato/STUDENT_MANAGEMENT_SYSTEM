@@ -1,5 +1,6 @@
 package org.springexmaples.student_management_system.service;
 
+import org.springexmaples.student_management_system.model.Course;
 import org.springexmaples.student_management_system.payload.StudentDTO;
 import org.springexmaples.student_management_system.payload.StudentResponseDTO;
 
@@ -15,4 +16,6 @@ public interface StudentService {
     StudentDTO updateStudent(StudentDTO student, Long studentId);
 
     StudentDTO deleteStudent(Long studentId);
+
+
 }

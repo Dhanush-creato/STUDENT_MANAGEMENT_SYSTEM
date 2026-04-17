@@ -2,6 +2,9 @@ package org.springexmaples.student_management_system.service;
 
 
 import org.modelmapper.ModelMapper;
+import org.springexmaples.student_management_system.Exception.ApiException;
+import org.springexmaples.student_management_system.Exception.ResourceNotFoundException;
+import org.springexmaples.student_management_system.model.Course;
 import org.springexmaples.student_management_system.model.Student;
 import org.springexmaples.student_management_system.payload.StudentDTO;
 import org.springexmaples.student_management_system.payload.StudentResponseDTO;
@@ -22,7 +25,13 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public StudentDTO createStudent(StudentDTO students) {
+
+
         Student student = modelMapper.map(students, Student.class);
+        Student findName = studentRepo.findByStudentName(student.getStudentName());
+        if(findName != null){
+            throw  new ApiException("The name:"+student.getStudentName()+" is Already present change Name");
+        }
      Student student1 =  studentRepo.save(student);
        StudentDTO  studentDTO = modelMapper.map(student1, StudentDTO.class);
        return studentDTO;
@@ -32,6 +41,9 @@ public class StudentServiceImpl implements StudentService {
     public StudentResponseDTO getStudent() {
 
      List<Student> students  =  studentRepo.findAll();
+     if(students.isEmpty()){
+         throw new ApiException("Students are Empty Add Students");
+     }
      List<StudentDTO> studentDTOS = students.stream().map(student->modelMapper.map(student, StudentDTO.class)).toList();
      StudentResponseDTO studentResponseDTO =new StudentResponseDTO();
       studentResponseDTO.setStudents(studentDTOS);
@@ -40,7 +52,10 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public StudentResponseDTO getStudentsById(Long studentId) {
-      Optional<Student> student = studentRepo.findById(studentId);
+     Optional<Student> student = studentRepo.findById(studentId);
+     if(student.isEmpty()){
+         throw new ResourceNotFoundException("Student ","Student ID",studentId);
+     }
         List<StudentDTO> studentDTOS = student.stream().map(stu->modelMapper.map(stu, StudentDTO.class)).toList();
         StudentResponseDTO studentResponseDTO = new StudentResponseDTO();
         studentResponseDTO.setStudents(studentDTOS);
@@ -52,6 +67,10 @@ public class StudentServiceImpl implements StudentService {
     public StudentResponseDTO getStudentsByName(String name) {
       List<Student> studentsByName = studentRepo.findByStudentNameLikeIgnoreCase("%"+name+"%");
 
+      if(studentsByName.isEmpty()){
+          throw  new ApiException("Students with name:"+name+" Not found");
+      }
+
         List<StudentDTO> studentDTOS = studentsByName.stream().map(stu->modelMapper.map(stu, StudentDTO.class)).toList();
         StudentResponseDTO studentResponseDTO = new StudentResponseDTO();
         studentResponseDTO.setStudents(studentDTOS);
@@ -61,7 +80,7 @@ public class StudentServiceImpl implements StudentService {
     @Override
     public StudentDTO updateStudent( StudentDTO studentDTO, Long studentId) {
 
-        Student getStudent = studentRepo.findById(studentId).orElseThrow(()-> new RuntimeException("Hello"));
+        Student getStudent = studentRepo.findById(studentId).orElseThrow(()->new ResourceNotFoundException("Student","Student ID",studentId));
 
 
 
@@ -79,9 +98,11 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public StudentDTO deleteStudent(Long studentId) {
-        Student deleteFind = studentRepo.findById(studentId) .orElseThrow(()->new RuntimeException("Hello here is error"));
+        Student deleteFind = studentRepo.findById(studentId) .orElseThrow(()->new ResourceNotFoundException("Student","Student ID",studentId));
          studentRepo.delete(deleteFind);
         StudentDTO studentDTO = modelMapper.map(deleteFind, StudentDTO.class);
         return studentDTO ;
     }
+
+
 }
